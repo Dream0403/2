@@ -1,0 +1,88 @@
+import json
+import requests
+import openpyxl
+from openpyxl import Workbook
+
+city_id= """
+ {"city_id":"CH13","name":"新疆","en":"","list":[
+      {"city_id":"CH1301","name":"乌鲁木齐","en":"","list":[
+        {"city_id":"CH130101","name":"乌鲁木齐","en":"Urunchi"}
+      ]},
+      {"city_id":"CH1302","name":"克拉玛依","en":"","list":[
+        {"city_id":"CH130201","name":"克拉玛依","en":"karamay"}
+      ]},
+      {"city_id":"CH1303","name":"石河子","en":"","list":[
+        {"city_id":"CH130301","name":"石河子","en":"shihezi"}
+      ]},
+      {"city_id":"CH1304","name":"昌吉","en":"","list":[
+        {"city_id":"CH130401","name":"昌吉","en":"Changji"}
+      ]},
+      {"city_id":"CH1305","name":"吐鲁番","en":"","list":[
+        {"city_id":"CH130501","name":"吐鲁番","en":"turpan"}
+      ]},
+      {"city_id":"CH1306","name":"巴音郭楞","en":"","list":[
+        {"city_id":"CH130601","name":"库尔勒","en":"korla"}
+      ]},
+      {"city_id":"CH1307","name":"阿拉尔","en":"","list":[
+        {"city_id":"CH130701","name":"阿拉尔","en":"alar"}
+      ]},
+      {"city_id":"CH1308","name":"阿克苏","en":"","list":[
+        {"city_id":"CH130801","name":"阿克苏","en":"aksu"}
+      ]},
+      {"city_id":"CH1309","name":"喀什","en":"","list":[
+        {"city_id":"CH130901","name":"喀什","en":"Kashi"}
+      ]},
+      {"city_id":"CH1310","name":"伊犁","en":"","list":[
+        {"city_id":"CH131001","name":"伊宁","en":"Yining"}
+      ]},
+      {"city_id":"CH1311","name":"塔城","en":"","list":[
+        {"city_id":"CH131101","name":"塔城","en":"Tacheng"}
+      ]},
+      {"city_id":"CH1312","name":"哈密","en":"","list":[
+        {"city_id":"CH131201","name":"哈密","en":"Hami"}
+      ]},
+      {"city_id":"CH1313","name":"和田","en":"","list":[
+        {"city_id":"CH131301","name":"和田","en":"hotan"}
+      ]},
+      {"city_id":"CH1314","name":"阿勒泰","en":"","list":[
+        {"city_id":"CH131401","name":"阿勒泰","en":"altay"}
+      ]},
+      {"city_id":"CH1315","name":"克州","en":"","list":[
+        {"city_id":"CH131501","name":"阿图什","en":"artux"}
+      ]},
+      {"city_id":"CH1316","name":"博尔塔拉","en":"","list":[
+        {"city_id":"CH131601","name":"博乐","en":"bole"}
+      ]}
+    ]}"""
+wb = openpyxl.Workbook() 
+ws = wb.create_sheet("data")
+headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"}
+a=json.loads(city_id)
+b=1
+for i in a['list']:
+    for j in i['list']:
+        url=f"http://api.yytianqi.com/forecast7d?city={j['city_id']}&key=sll983urgbpqvb19"
+        response=requests.get(url, headers=headers).json()['data']
+        b+=1
+        ws.cell(row=b,column=1).value =j['name']
+        ws.cell(row=b,column=2).value = j['city_id']
+        for day in response['list']:
+
+            ws.cell(row=1,column=1).value ='城市'
+            ws.cell(row=1,column=2).value = "城市city_id"
+            ws.cell(row=1,column=3).value = "白天天气"
+            ws.cell(row=1,column=4).value = "夜间天气"
+            ws.cell(row=1,column=5).value = "白天气温"
+            ws.cell(row=1,column=6).value = "夜间气温"
+            ws.cell(row=1,column=7).value = "日期"
+
+            
+            ws.cell(row=b,column=3).value = day['tq2']
+            ws.cell(row=b,column=4).value = day['tq1']
+            ws.cell(row=b,column=5).value = day['qw1']
+            ws.cell(row=b,column=6).value = day['qw2']
+            ws.cell(row=b,column=7).value = day['date']
+            b+=1
+            wb.save('ikun.xlsx')
+            print(j['name'],j['city_id'],day['tq2'],day['tq1'],day['qw1'],day['qw2'])
+        
