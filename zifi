@@ -1,0 +1,10 @@
+# for i in range(1,101):
+#     if str(i).find("7") != -1 or int (i)%7 == 0:
+#         print("拍手",end="、")
+#     else:
+#         print(i,end="、")
+#     if i%10 == 0:
+#         print("")
+string = "江南 \n汉 乐府\n一二一二一二一二。\n一二一二一二一二。\n鱼戏连页间。\n鱼戏连页东,鱼戏连页西,鱼戏连页南,鱼戏莲叶北"
+new_string = string.replace("一二","嗯阿")
+print(new_string)
