@@ -1,0 +1,101 @@
+import requests
+
+from lxml import etree
+
+import openpyxl
+
+from openpyxl import Workbook
+
+shuzu=61
+
+m=0
+
+page=input("请输入要访问的页数")
+
+page=int(page)
+
+wb = openpyxl.Workbook() #创建 xlsx 
+
+ws = wb.create_sheet("data")
+
+op=2
+
+for i in range(1,page+1):
+
+    url = "https://search.dangdang.com/?"
+
+    param={"key":"小王子","page_index":i}
+
+    headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"}
+
+    response=requests.get(url, params=param,headers=headers)
+
+    response.encoding="GBK"
+
+    file_name="第"+str(i)+"页.html"
+
+    print("正在保存")
+
+    fu=response.text
+
+    ws.cell(row=1,column=1).value ='书名'
+
+    ws.cell(row=1,column=2).value ='作者'
+
+    ws.cell(row=1,column=3).value ='价格'
+
+    ws.cell(row=1,column=4).value ='等级'
+
+    ws.cell(row=1,column=5).value ='评论条数'
+
+    with open(file_name,"w",encoding='utf-8')as file:
+
+        file.write(fu)
+
+        for x in range(i):        
+
+            for a in range(1,shuzu):
+
+                m+=1
+
+                html_root=etree.HTML(fu)
+
+                books_name=html_root.xpath('//ul[@class="bigimg"]/li[@ddt-pit="%d"]/a/@title'%a)[0]
+
+                authors_name=html_root.xpath('//ul[@class="bigimg"]/li[@ddt-pit="%d"]/p[@class="search_book_author"]/span[1]/a[1]/text()'%a)
+
+                books_price=html_root.xpath('//ul[@class="bigimg"]/li[@ddt-pit="%d"]/p[@class="price"]/span[1]/text()'%a)[0]
+
+                books_pl=html_root.xpath('//ul[@class="bigimg"]/li[@ddt-pit="%d"]/p[@class="search_star_line"]/a[1]/text()'%a)
+
+                books_dj=html_root.xpath('//ul[@class="bigimg"]/li[@ddt-pit="%d"]/p[@class="search_star_line"]/span[@class="search_star_black"]/span/@style'%a)
+
+               
+
+                if authors_name:
+
+                    authors_name=authors_name[0]
+
+                if books_pl:
+
+                    books_pl=books_pl[0]
+
+                if books_dj: 
+
+                    books_dj=books_dj[0][6:]
+
+                print("编号：%d,书名:%s,作者:%s,价格：%s元,%s,%s"%(m,books_name,authors_name,books_price,books_pl,books_dj))
+
+                ws.cell(row=op,column=1).value = str(books_name)
+
+                ws.cell(row=op,column=2).value = str(authors_name)
+
+                ws.cell(row=op,column=3).value = str(books_price)
+
+                ws.cell(row=op,column=4).value = str(books_dj)
+
+                ws.cell(row=op,column=5).value = str(books_pl)
+
+                op+=1
+
+                wb.save('aa.xlsx')
